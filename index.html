@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $("#addd").click(function () {
+                $(this).hide();
+                $("#addTaskContainer").show();
+            });
+            $(':checkbox').change(function () {
+                if (this.checked) {
+                    updateTask("true",this.id)
+                }
+                else {
+                    backToStart()
+                    updateTask("false", this.id)
+                }
+            });
+
+
+            $("#cancel").click(function () {
+                backToStart()
+            });
+        });
+        function backToStart() {
+            $("#addd").show();
+            $("#addTaskContainer").hide();
+
+        }
+
+        function updateTask(checked,taskId) {
+            $.post("/updateTask", { checked: checked, taskId: taskId});
+        };
+    </script>
+</head>
+<body>
+    <br />
+    <br />
+    {% if user %}
+    {% for task in tasks %}
+    <form action="/deleteTask" method="post">
+        {% if task.checked %}
+        <input type="checkbox" name="{{task.content}}" value={{task.checked}} id={{task.key.id()}} checked> 
+        {% else %}
+        <input type="checkbox" name="{{task.content}}" value={{task.checked}} id={{task.key.id()}}> 
+        {% endif %}
+        {{task.content}}
+        <input type="image" src="/images/trash.jpg" onsubmit="submitForm();" width="15" height="15">
+        <input type="text" name="taskId" value= {{task.key.id()}} style="display:none"> </form><br />
+        {% endfor %}
+    {% else%}
+    You need to login in order to see your tasks
+    {% endif %}
+    <br />
+    
+        <form action="/addTask" method="post">
+            <div id="addTaskContainer" style="display:none">
+                <div><input type="text" name="content">
+                <input type="submit" value="Save">
+                <input type="button" value="Cancel" id="cancel"></div>
+            </div>
+        </form>
+    {% if user %}
+        <a href="#" id="addd">+ Add Task</a>
+    {% endif %}
+        <br />
+    <br />
+    <br />
+        <a href="{{ url|safe }}">{{ url_linktext }}</a>
+</body>
+</html>
