@@ -35,11 +35,10 @@ class MainPage(webapp2.RequestHandler):
     def get(self):
         
         user = users.get_current_user()
+        tasks=None
         if user:
             tasks_query=Task.query(Task.author.identity == user.user_id()).order(Task.date)
-        else:
-            tasks_query = Task.query().order(Task.date)
-        tasks = tasks_query.fetch(10000)
+            tasks = tasks_query.fetch(10000)
 
         if user:
             url = users.create_logout_url(self.request.uri)
@@ -77,7 +76,6 @@ class Tasks(webapp2.RequestHandler):
         task.checked=False
         task.put()
 
-        time.sleep(0.5)
         self.redirect('/')
         
 class DeleteTasks(webapp2.RequestHandler):
@@ -85,7 +83,6 @@ class DeleteTasks(webapp2.RequestHandler):
         taskId = int(self.request.get("taskId"))
         task=Task.get_by_id(taskId)
         ndb.Key(Task, taskId).delete()
-        time.sleep(0.5)
         self.redirect('/')
 class UpdateTasks(webapp2.RequestHandler):
     def post(self):
@@ -98,7 +95,6 @@ class UpdateTasks(webapp2.RequestHandler):
             task.checked=False;
             
         task.put()
-        time.sleep(0.5)
         self.redirect('/')
 app = webapp2.WSGIApplication([
     ('/', MainPage),
